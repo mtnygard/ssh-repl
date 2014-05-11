@@ -50,31 +50,51 @@
                      :future
                      (future-call (bound-fn* clojure.main/repl))))))))))
 
-(defmulti ^:private authenticator (fn [type _] type))
+(defmulti ^:private set-authenticator (fn [_ type _] type))
 
-(defmethod authenticator :password
-  [_ resolver]
-  (reify PasswordAuthenticator
-    (authenticate [this username password session]
-      (= password (resolver username)))))
+(defmethod set-authenticator :password
+  [daemon _ resolver]
+  (doto daemon
+    (.setPasswordAuthenticator
+     (reify PasswordAuthenticator
+       (authenticate [this username password session]
+         (= password (resolver username)))))))
 
-(defmethod authenticator :public-key
-  [_ resolver]
-  (reify PublickeyAuthenticator
-    (authenticate [this username key session]
-      (let [allowed-key (pubkey/read-ssh-key (resolver username))]
-        (= key allowed-key)))))
+(defmethod set-authenticator :public-key
+  [daemon _ resolver]
+  (doto daemon
+    (.setPublickeyAuthenticator
+     (reify PublickeyAuthenticator
+       (authenticate [this username key session]
+         (let [allowed-keys (pubkey/read-ssh-keys (resolver username))]
+           (not (nil? (some (fn [allowed-key]
+                              (= key allowed-key))
+                            allowed-keys)))))))))
 
 (defn start-repl
   ([authentication-type port username-to-credentials-fn]
-     (start-server authentication-type nil port username-to-credentials-fn))
+     (start-repl authentication-type nil port username-to-credentials-fn))
   ([authentication-type host port username-to-credentials-fn]
      (let [server (default-server "hostkey.ser" host port)]
        (.setShellFactory server shell-factory)
-       (.setPasswordAuthenticator server (authenticator authentication-type username-to-credentials-fn))
+       (set-authenticator server authentication-type username-to-credentials-fn)
        (.start server)
        server)))
 
 (defn stop-repl
   [server]
   (.stop server true))
+
+
+(comment
+
+  (def s (start-repl :password 2022 (constantly "abcdef")))
+  (stop-repl s)
+
+  (def s (start-repl :public-key 2022 (constantly "file:///Users/mtnygard/.ssh/authorized_keys")))
+  (stop-repl s)
+
+  (def a  (authenticator :public-key (constantly "file://Users/mtnygard/.ssh/authorized_keys")))
+
+
+)

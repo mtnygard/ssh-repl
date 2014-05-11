@@ -38,9 +38,9 @@ or do you want to use a public key?
 
 With public key:
 
-    (start-server :public-key port username-to-key-fn)
+    (start-repl :public-key port username-to-key-fn)
     ;; or
-    (start-server :public-key host port username-to-key-fn)
+    (start-repl :public-key host port username-to-key-fn)
 
 Without the host argument, the SSHD will listen on all interfaces on
 the host. With it, the daemon will only listen on the interface that
@@ -50,15 +50,11 @@ The `username-to-key-fn` is a function you must provide to map a
 username into a URL where authorized public keys for that user may be
 found.
 
-If you want to use home directories of known users, you can supply
-`ssh-repl.resolver/sshd-authorized-keys`, which uses
-`$HOME/.ssh/authorized-keys` as the place to find keys.
-
 With password:
 
-    (start-server :password port username-to-hash-fn)
+    (start-repl :password port username-to-hash-fn)
     ;; or
-    (start-server :password host port username-to-hash-fn)
+    (start-repl :password host port username-to-hash-fn)
 
 `username-to-hash-fn` is a function that looks up the hashed password
 value for a user. If this is returns a static string, then your hashed
@@ -71,10 +67,10 @@ library.
 
 ## Stopping the server
 
-Both forms of `start-server` return the same thing, a value that you
-can pass to `stop-server`.
+Both forms of `start-repl` return the same thing, a value that you
+can pass to `stop-repl`.
 
-    (stop-server s)
+    (stop-repl s)
 
 ## License
 
