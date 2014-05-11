@@ -72,6 +72,12 @@ can pass to `stop-repl`.
 
     (stop-repl s)
 
+## Credit
+
+Thanks to [Craig Andera](https://github.com/candera) for
+[his gist](https://gist.github.com/candera/11310395) that showed how
+to accomplish this. All I did was package up his code as a library.
+
 ## License
 
 Copyright © 2014 FIXME
