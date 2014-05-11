@@ -1,5 +1,7 @@
 # SSH-REPL
 
+[![Build Status](https://travis-ci.org/mtnygard/ssh-repl.png)](https://travis-ci.org/mtnygard/ssh-repl)
+
 SSH to a REPL
 
 ## Why?
